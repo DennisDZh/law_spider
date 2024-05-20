@@ -1,0 +1,107 @@
+import os
+import shutil
+import re
+import time
+import requests
+import selenium.common.exceptions
+from selenium.webdriver.chrome.options import Options
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu')
+
+dic = {'flfg':'法律法规','xzfg':'行政法规','sfjs':'司法解释','dfxfg':'地方性法规'}
+
+path = input('输入数据库所在目录（绝对路径）：')
+path1 = input('输入浏览器下载目录（绝对路径）：确保该目录下不存在docx文件，子目录中可以存在docx文件') # '/Users/lizzone/PycharmProjects/pythonProject'
+os.makedirs(f'{path}/法规爬虫/{dic[type]}/{dic[type]}库', exist_ok=True)
+os.makedirs(f'{path}/法规爬虫/{dic[type]}/法规索引', exist_ok=True)
+os.makedirs(f'{path}/法规爬虫/{dic[type]}/中间文档', exist_ok=True)
+
+path2 = f'{path}/法规爬虫/{dic[type]}库'  # 法律库目录（绝对路径）。
+path3 = f'{path}/法规爬虫/{dic[type]}/法规索引'  # 法规索引库目录（绝对路径）。
+path4 = f'{path}/法规爬虫/{dic[type]}/中间文档'  # 中间文档目录（绝对路径）。
+
+t = time.strftime('%Y-%m-%d')
+
+with open(f'{path4}/{t}-下载索引.txt') as f:
+    ff = f.read()
+regex = re.compile(r"名称.+|"
+                   r'链接.+')
+law_list = regex.findall(ff)
+
+
+def download(x):
+    try:
+        print(f'待下载{int(len(law_list) / 2) - x}条法规')
+        for i in range(x, int(len(law_list) / 2)):
+            title = law_list[2 * i][3:]
+            url_ = law_list[2 * i + 1][3:]
+            browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options) # executable_path 为chromedriver的绝对路径，请确保其为您个人的路径一致。
+            # r1 = browser.get(url)
+            browser.get(url_)
+            # time.sleep(4)
+            # d = browser.find_element_by_id('downLoadFile')
+            WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.ID, 'downLoadFile')))
+            d = WebDriverWait(browser, 20, 0.5).until(EC.element_to_be_clickable((By.ID, 'downLoadFile')))
+            d.click()
+            time.sleep(4)
+            fns = os.listdir(str(path1))
+            for fn in fns:
+                if fn.endswith('.docx') and not fn.startswith('~$'):
+                    shutil.move(f'{path1}/{fn}', f'{path2}/{fn}')
+                    os.replace(f'{path2}/{fn}', f'{path2}/{title}.docx')
+                    print(f'{i + 1}.已下载《{title}》.docx')
+                    with open(f'{path4}/{t}-bugfile.txt', 'a+', encoding='utf-8') as f1:
+                        print(f'已成功下载：{i + 1}  共：{int(len(law_list) / 2)}', file=f1)
+            browser.close()
+            if (i + 1) % 16 == 0:
+                browser.quit()
+        else:
+            return int(len(law_list) / 2)
+    except selenium.common.exceptions.TimeoutException:
+        print('TimeoutException')
+        with open(f'{path4}/{t}-bugfile.txt', 'a+', encoding='utf-8') as f1:
+            print(f'已成功下载：{i}  共：{int(len(law_list) / 2)}，第{i + 1}条下载失败', file=f1)
+        browser.quit()
+        return 'chrome_error'
+
+    except selenium.common.exceptions.WebDriverException:
+        print('连接代理服务器失败，再次重试')
+        browser.quit()
+
+
+# def get_proxy():
+#     return requests.get("http://127.0.0.1:5010/get?type=https/").json()
+
+
+while True:
+    try:
+        with open(f'{path4}/{t}-bugfile.txt') as f:
+            ff = f.read()
+        regex1 = re.compile(r"\d+ ")
+        regex2 = re.compile(r"共：\d+")
+        bug_list = regex1.findall(ff)
+        if bug_list:
+            l = list(map(int, bug_list))
+            x = max(l)
+            total_num = int(regex2.search(ff).group(0)[2:])
+            if x < total_num:
+                download(x)
+                # proxy = get_proxy().get("proxy")
+                # chrome_options.add_argument(f'--proxy-server=https://{proxy}')
+                # print(f'受网站反爬虫限制，当前时段本ip已达最大下载量，尝试切换{proxy}。')
+                print(f'受网站反爬虫限制，当前时段本ip已达最大下载量，请等待一段时间后再尝试。')
+            else:
+                break
+        else:
+            x = 0
+            download(x)
+
+    except FileNotFoundError:
+        x = 0
+        download(x)
