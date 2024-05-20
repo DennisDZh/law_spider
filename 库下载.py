@@ -2,7 +2,7 @@ import os
 import shutil
 import re
 import time
-import requests
+# import requests
 import selenium.common.exceptions
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
@@ -17,7 +17,7 @@ chrome_options.add_argument('--disable-gpu')
 dic = {'flfg':'法律法规','xzfg':'行政法规','sfjs':'司法解释','dfxfg':'地方性法规'}
 
 path = input('输入数据库所在目录（绝对路径）：')
-path1 = input('输入浏览器下载目录（绝对路径）：确保该目录下不存在docx文件，子目录中可以存在docx文件') # '/Users/lizzone/PycharmProjects/pythonProject'
+path1 = input('输入浏览器下载目录（绝对路径）：确保该目录下不存在docx文件，子目录中可以存在docx文件')
 os.makedirs(f'{path}/法规爬虫/{dic[type]}/{dic[type]}库', exist_ok=True)
 os.makedirs(f'{path}/法规爬虫/{dic[type]}/法规索引', exist_ok=True)
 os.makedirs(f'{path}/法规爬虫/{dic[type]}/中间文档', exist_ok=True)
