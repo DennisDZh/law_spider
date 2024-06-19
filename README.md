@@ -50,7 +50,7 @@
 
 “法规爬虫3-库下载.py”除基本的os，re，sys，time外，需要requests，selenium，pypandoc。
 
-本脚本selenium使用chrome浏览器，请自行下载与您的chrome浏览器兼容的chromedriver，并确保其路径配置正确。即确保“法规爬虫2-建立下载索引.py”第53行、“法规爬虫2-校验错误.py”第36行、“法规爬虫3-库下载.py”第47行处的“executable_path”正确指向您的chromedriver。
+本脚本selenium使用chrome浏览器，请自行下载与您的chrome浏览器兼容的chromedriver，并确保其路径配置正确。即确保“法规爬虫2-建立下载索引.py”第54行、“法规爬虫2-校验错误.py”第36行、“法规爬虫3-库下载.py”第47行处的“executable_path”正确指向您的chromedriver。
 
 
 四、示例：
