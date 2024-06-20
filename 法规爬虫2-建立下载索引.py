@@ -54,7 +54,7 @@ no = 0
 browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver',chrome_options=chrome_options)  # 请确保您的chromedriver内核与chrome浏览器兼容；请确保此处executable_path为您的chromedriver路径
 print('首次运行程序可能会有一段启动时间。')
 print("程序运行过程中会出现一段时间内无输出现象，此为程序写入过程，无须特别关注。")
-print('但如果程序长时间无输出，当前ip可能被限制，请更换IP或者稍等一段时间后再次尝试。')
+print('但如果程序长时间无输出，或者报错TimeoutException，当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
 print('下载索引建立完毕后，程序将自动校验已建立的下载索引中的错误；如果您已建立了部分下载索引，可手动运行法规爬虫2-校验其错误。')
 
 
