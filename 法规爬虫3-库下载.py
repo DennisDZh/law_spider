@@ -8,6 +8,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 import pypandoc
+import subprocess
+
+# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# caffeinate_process = subprocess.Popen(['caffeinate', '-u'])
 
 type = str(input('''爬取规范类型：
 1.flfg（法律法规）；
@@ -146,3 +150,6 @@ for h in outcome:
         print(f'发现错误  {h}')
         os.remove(path2 + '/' + h)
 print('校正完毕，感谢使用')
+
+# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# caffeinate_process.terminate()
