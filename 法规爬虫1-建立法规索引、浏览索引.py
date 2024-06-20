@@ -1,12 +1,13 @@
 import json
 import os
+import subprocess
 import requests
 import re
 import time
 from bs4 import BeautifulSoup
 
 
-def send_msg(page, type):  # 爬取国家法律法规数据库
+def send_msg(page, type):  # 爬取国家法律法规数据库，获取数据
     try:
         url = f'https://flk.npc.gov.cn/api/?page={page}&type={type}&searchType=title%3Bvague&sortTr=f_bbrq_s%3Bdesc&gbrqStart=&gbrqEnd=&sxrqStart=&sxrqEnd=&sort=true&size=10&_={time.time()}'
         headers = {
@@ -24,14 +25,11 @@ def send_msg(page, type):  # 爬取国家法律法规数据库
         return law
     except json.decoder.JSONDecodeError:
         print(f'第{page}页(第{page * 10 - 9}-{page * 10}条)请求错误，请程序终止后再次尝试。')
-        # send_msg(page,i)
 
 
-def law_index(law, t, p, path3, path4):  # 爬取国家法律法规数据库
-    # law = send_msg(page,0)
+def law_index(law, t, p, path3, path4):  # 爬取国家法律法规数据库，将数据储存至本地
     law_list = law['result']['data']
-    # 把旧数据导入进来，形成列表，新数据与旧数据比对，名称相同、日期不同/无名称-下载新法
-    filenames = os.listdir(f'{path3}')
+    filenames = os.listdir(f'{path3}')  # 把旧数据导入进来，形成列表，新数据与旧数据比对，名称相同、日期不同/无名称-下载新法
     if '.DS_Store' in filenames:
         filenames.remove('.DS_Store')
     if f'{t}-最新规范.txt' in filenames:
@@ -78,21 +76,18 @@ def law_index(law, t, p, path3, path4):  # 爬取国家法律法规数据库
                 n = old_law_list.index(f'名称：{title}')
                 old_publish = old_law_list[n + 1][5:]
                 if publish > old_publish:
-                    # download_file(url_, f'{path1}', f'{path2}', title)
                     print(f'《{title}》已被{office}修改，新规范公布日期为{publish}。')
                     with open(f'{path4}/{t}-浏览索引.txt', 'a+', encoding='utf-8') as f2:
                         print(f'名称：{title}\n链接：{url_}\n', file=f2)
-                # else: 仅显示更新规范？
-                # print(f'{office}制定的《{title}》已为最新，公布日期为{publish}。')
+              # else: 仅显示更新规范？
+              #     print(f'{office}制定的《{title}》已为最新，公布日期为{publish}。')
             # 有旧法规索引，新制定法
             elif filenames and f'名称：{title}' not in old_law_list:
-                # download_file(url_, f'{path1}', f'{path2}', title)
                 print(f'{office}新制定了《{title}》，新规范公布日期为{publish}。')
                 with open(f'{path4}/{t}-浏览索引.txt', 'a+', encoding='utf-8') as f2:
                     print(f'名称：{title}\n链接：{url_}\n', file=f2)
             # 无旧法规索引，建立法规索引库、法律库
             elif not filenames:
-                # download_file(url_, f'{path1}', f'{path2}', title)
                 print(f'{office}制定的《{title}》已建立法规索引，该规范公布日期为{publish}。')
                 with open(f'{path4}/{t}-浏览索引.txt', 'a+', encoding='utf-8') as f2:
                     print(f'名称：{title}\n链接：{url_}\n', file=f2)
@@ -216,7 +211,9 @@ def treaty_download(soup_, title, treaty_path2):  # 下载条约库
                 else:
                     with open(f"{treaty_path2}/{title}-{download_urls.index(du)}.pdf", "wb") as code:
                         code.write(responsepdf.content)
-
+                        
+# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# caffeinate_process = subprocess.Popen(['caffeinate', '-u'])
 
 type = str(input('''爬取规范类型：
 1.flfg（法律法规）；
@@ -228,8 +225,7 @@ type = str(input('''爬取规范类型：
 5.2.duobian（多边条约）
 输入拼音：（如flfg）'''))
 
-dic = {'flfg': '法律法规', 'xzfg': '行政法规', 'sfjs': '司法解释', 'dfxfg': '地方性法规', 'tiaoyue': '条约', 'shuangbian': '双边条约',
-       'duobian': '多边条约'}
+dic = {'flfg': '法律法规', 'xzfg': '行政法规', 'sfjs': '司法解释', 'dfxfg': '地方性法规', 'tiaoyue': '条约', 'shuangbian': '双边条约','duobian': '多边条约'}
 
 path = input('输入数据库所在目录（绝对路径）：')
 if type == 'flfg' or type == 'xzfg' or type == 'sfjs' or type == 'dfxfg':
@@ -258,23 +254,32 @@ t = time.strftime('%Y-%m-%d')
 
 if type == 'flfg' or type == 'xzfg' or type == 'sfjs' or type == 'dfxfg':
     l = []
-    e1 = int(input('输入起始页：（爬取全库则输入0；爬取全库可能受反爬虫机制限制而出错，出错时请从出错页数起手动爬取，出错页数为法规索引中末尾规范编号+1）'))
-    e2 = int(input('输入末页：（爬取全库则输入0；不建议超过100页，如超过100页请分多次爬取）'))
+    last = 0
+    try:
+        with open(f'{path3}/{t}-最新规范.txt') as begin_f:
+            begin_file = begin_f.read()
+            regex = re.compile(r"No\.\d+")
+            last = regex.findall(begin_file)[-1][3:]
+    except FileNotFoundError:
+        pass
+    e1 = int(input(f'输入起始页：（爬取全库则输入0；爬取全库可能受反爬虫机制限制而出错，出错时请从出错页数[即{int(last)+1}页]起手动爬取，出错页数为法规索引中末尾规范编号+1）'))
+    e2 = int(input(f'输入末页：（爬取全库则输入0；不建议超过100页[即{e1+99}页]，如超过100页请分多次爬取；当前仅地方性法规超过100页，其他法规可直接爬取全库）'))
     print('如果第1条就出错，说明当前ip被限制了，须等待一段时间再爬取数据；或者更换ip爬取数据。')
     if e1 + e2 == 0:
         error = 0
     else:
         error = range(e1 - 1, e2)
     l0 = send_msg(1, type)
-    total_num = int(l0['result']['totalSizes']) if not error else (e2 - e1) * 10 + 10
+    total_num = int(l0['result']['totalSizes'])
+    if error:
+        if e2 < total_num:
+            total_num = (e2 - e1) * 10 + 10
     print(f"截至{t}，共检索到{dic[type]}{total_num}条。")
     print('检索中，请稍后……')
     if not error:
         with open(f'{path3}/{t}-最新规范.txt', 'a+', encoding='utf-8') as fa:
-            print(
-                f'截至{t}，{dic[type]}共{total_num}条，共{total_num // 10 if total_num % 10 == 0 else total_num // 10 + 1}页。',
-                file=fa)
-    n = total_num // 1000 + 1
+            print(f'截至{t}，{dic[type]}共{total_num}条，共{total_num // 10 if total_num % 10 == 0 else total_num // 10 + 1}页。',file=fa)
+    n = total_num // 1000 if total_num % 1000 == 0 else total_num // 1000 + 1
     for i in range(n):
         n1 = (i + 1) * 1000 if (i + 1) * 1000 < total_num else total_num
         if not error:
@@ -294,6 +299,8 @@ if type == 'flfg' or type == 'xzfg' or type == 'sfjs' or type == 'dfxfg':
                 print(f'已检索{p * 10 if p < e2 else e2 * 10}条。')
                 p += 1
         l.clear()
+    else:
+        print('任务完成，感谢使用')
 
 elif type == 'tiaoyue' or type == 'shuangbian' or type == 'duobian':
     page = input('输入起始页数：(默认从第1页开始检索)')
@@ -304,3 +311,6 @@ elif type == 'tiaoyue' or type == 'shuangbian' or type == 'duobian':
     for i in range(int(page), num):
         treaty(type, i + 1)
     print('任务完成，感谢使用')
+
+# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# caffeinate_process.terminate()  
