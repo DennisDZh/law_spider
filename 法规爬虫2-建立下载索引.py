@@ -9,6 +9,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+import subprocess
+
+# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# caffeinate_process = subprocess.Popen(['caffeinate', '-u'])
 
 # 规范类型与此前建立法规索引、浏览索引的法规一致。
 type = str(input('''爬取规范类型：
@@ -180,3 +184,6 @@ print('正在纠正错误中，请稍后……')
 with open(f'{path4}/{t}-下载索引.txt', 'w') as f4:
     f4.write(f3)
 print(f'{dic[type]}下载索引建立完毕，感谢使用；如果您担心仍有错误，可再次运行本程序校验错误。')
+
+# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# caffeinate_process.terminate()
