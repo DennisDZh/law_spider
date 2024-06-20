@@ -47,34 +47,38 @@ for i in range(len(l_list)):
         title = l_list[i - 1][:-1] + '.' + law_list[i - 1][3:]
         print(f'发现错误：{title}')
         u = law_list[i][3:]
-        browser.get(u)
-        codeMa = WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.ID, 'codeMa')))
-        png = codeMa.get_attribute('src')
-        png = re.sub(r'PNG', 'WORD', png)
-        doc = re.sub(r'\.png', '.docx', png)
-        if 'images/qr' in doc:  # 有的文件仅有pdf，或者其他错误，直接下载文件
-            WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.ID, 'downLoadFile')))
-            d = WebDriverWait(browser, 20, 0.5).until(EC.element_to_be_clickable((By.ID, 'downLoadFile')))
-            d.click()
-            # time.sleep(2)
-            while True:
-                database = os.listdir(path2)
-                for j in database:
-                    regex = re.compile(r"[0-9a-zA-Z]+\.[a-zA-Z]+")
-                    k = re.match(regex, j)
-                    if ('download' not in j) and (j != '.DS_Store') and k:
-                        reg = re.compile(r"\..+")
-                        k = k.group()
-                        end = re.findall(reg, k)
-                        os.rename(f'{path2}/{j}', f'{path2}/{title}{end[0]}')
-                        f3 = f3 + '链接：已下载' + '\n' + '\n'
-                        break
-                else:
-                    time.sleep(1)
-                    continue
-                break
-        else:
-            f3 = f3 + '链接：' + doc + '\n' + '\n'
+        try:
+            browser.get(u)
+            codeMa = WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.ID, 'codeMa')))
+            png = codeMa.get_attribute('src')
+            png = re.sub(r'PNG', 'WORD', png)
+            doc = re.sub(r'\.png', '.docx', png)
+            if 'images/qr' in doc:  # 有的文件仅有pdf，或者其他错误，直接下载文件
+                WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.ID, 'downLoadFile')))
+                d = WebDriverWait(browser, 20, 0.5).until(EC.element_to_be_clickable((By.ID, 'downLoadFile')))
+                d.click()
+                # time.sleep(2)
+                while True:
+                    database = os.listdir(path2)
+                    for j in database:
+                        regex = re.compile(r"[0-9a-zA-Z]+\.[a-zA-Z]+")
+                        k = re.match(regex, j)
+                        if ('download' not in j) and (j != '.DS_Store') and k:
+                            reg = re.compile(r"\..+")
+                            k = k.group()
+                            end = re.findall(reg, k)
+                            os.rename(f'{path2}/{j}', f'{path2}/{title}{end[0]}')
+                            f3 = f3 + '链接：已下载' + '\n' + '\n'
+                            break
+                    else:
+                        time.sleep(1)
+                        continue
+                    break
+            else:
+                f3 = f3 + '链接：' + doc + '\n' + '\n'
+        except selenium.common.exceptions.TimeoutException:
+            print('链接超时，当前ip可能被限制，请更换IP或者稍等一段时间后再次尝试。')
+            sys.exit()
 
     elif type == 'flfg' and (
             '/sfjs/' in l_list[i] or '/xzfg/' in l_list[i] or '/dfxfg/' in l_list[i]):  # 有的文件，国家法律法规数据库提供的链接有错误
