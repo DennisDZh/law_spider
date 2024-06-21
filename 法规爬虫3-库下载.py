@@ -50,15 +50,24 @@ law_list = regex.findall(ff)
 
 browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options)
 begin = os.listdir(path2)  # 实现断点续传功能
-try:
-    begin.remove('.DS_Store')
-except:
-    pass
-reg = re.compile(r"\d+")
+begin_ = []
+for w in begin:
+    if w.startswith('._'):
+        pass
+    elif w == '.DS_Store':
+        pass
+    else:
+        begin_.append(w)
+reg = re.compile(r"^\d+\.")
 begin_list = [0]
-for k in begin:
-    num = reg.findall(k)
-    begin_list.append(int(num[0]))
+for k in begin_:
+    num = reg.match(k)
+    if num:
+        num = num.group()
+        begin_list.append(int(num[:-1]))
+    else:
+        print(f'发现错误  {k}，正在校正……')
+        os.remove(path2 + '/' + k)
 begin_num = max(begin_list)
 
 if begin_num > 0:
@@ -70,7 +79,18 @@ if begin_num > 0:
         pass
     else:
         begin_num = int(begin_test)
-print('如果长时间无输出，当前ip可能被限制，请更换IP或者稍等一段时间后再次尝试。')
+print('如果长时间无输出，当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
+
+
+def request_downloader(url):  # 下载未提供下载源的文件
+    r = requests.get(url)
+    r.raise_for_status()
+    if r.status_code == 200:
+        with open(f"{path2}/{title}.html", "wb") as code:
+            code.write(r.content)
+    pypandoc.convert_file(f"{path2}/{title}.html", 'docx', outputfile=f"{path2}/{i + 1}.{title}.docx")
+    os.remove(f"{path2}/{title}.html")
+    print(f'{i + 1}.{title}  已下载！')
 
 
 def selenium_downloader(url):  # 下载提供了下载源的文件
@@ -115,18 +135,11 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
 
 
 for i in range(begin_num, int(len(law_list) / 2)):  # begin_num实现断点续传功能
+    title = re.sub(r'\d+：', '', law_list[2 * i])
+    url = law_list[2 * i + 1][3:]
     try:
-        title = re.sub(r'\d+：', '', law_list[2 * i])
-        url = law_list[2 * i + 1][3:]
         if f'https://wb.flk.npc.gov.cn/{type}/texthtml' in url:  # 下载未提供下载源的文件
-            r = requests.get(url)
-            r.raise_for_status()
-            if r.status_code == 200:
-                with open(f"{path2}/{title}.html", "wb") as code:
-                    code.write(r.content)
-            output = pypandoc.convert_file(f"{path2}/{title}.html", 'docx', outputfile=f"{path2}/{i + 1}.{title}.docx")
-            os.remove(f"{path2}/{title}.html")
-            print(f'{i + 1}.{title}  已下载！')
+            request_downloader(url)
 
         elif f'https://wb.flk.npc.gov.cn/{type}/WORD' in url:  # 下载提供了下载源的文件
             selenium_downloader(url)
@@ -140,15 +153,45 @@ else:
 # 以下为校验错误代码
 print('校正错误中，请稍后……')
 outcome = os.listdir(path2)
-re = re.compile(r"^\d+\.")
+regex_ = re.compile(r"^\d+\.")
+regex__ = re.compile(r'\d+：')
 for h in outcome:
-    if h == '.DS_Store':
+    if h == '.DS_Store' or h.startswith('._'):
         pass
-    elif re.match(h):
+    elif regex_.match(h):
         pass
     else:
-        print(f'发现错误  {h}')
+        print(f'发现错误  {h}，正在校正……')
         os.remove(path2 + '/' + h)
+
+for i in range(int(len(law_list) / 2)):
+    no = regex__.findall(law_list[2 * i])[0][:-1]
+    for h in outcome:
+        if h == '.DS_Store' or h.startswith('._'):
+            pass
+        elif regex_.match(h):
+            no_ = regex_.match(h).group()
+            if no_[:-1] == no:
+                break
+        else:
+            print(f'发现错误  {h}，正在校正……')
+            os.remove(path2 + '/' + h)
+    else:
+        print(f'{law_list[2 * i]}未下载，正在下载……')
+        title = re.sub(r'\d+：', '', law_list[2 * i])
+        url = law_list[2 * i + 1][3:]
+        try:
+            if f'https://wb.flk.npc.gov.cn/{type}/texthtml' in url:  # 下载未提供下载源的文件
+                request_downloader(url)
+
+            elif f'https://wb.flk.npc.gov.cn/{type}/WORD' in url:  # 下载提供了下载源的文件
+                selenium_downloader(url)
+
+        except selenium.common.exceptions.TimeoutException:
+            print(f'{law_list[2 * i]}下载失败')
+            print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
+            sys.exit()
+
 print('校正完毕，感谢使用')
 
 # 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
