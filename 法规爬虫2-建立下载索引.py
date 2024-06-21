@@ -39,7 +39,8 @@ try:
     law_list = regex.findall(ff)
 except FileNotFoundError:
     print('未找到当日浏览索引；请确保目录输入正确，且当日已运行法规爬虫1、建立浏览索引；如果您想使用已有的浏览索引，请将其命名为当日日期。')
-    caffeinate_process.terminate()
+    # 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+    # caffeinate_process.terminate()
     sys.exit()
 
 chrome_options = Options()
