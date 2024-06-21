@@ -212,7 +212,7 @@ def treaty_download(soup_, title, treaty_path2):  # 下载条约库
                     with open(f"{treaty_path2}/{title}-{download_urls.index(du)}.pdf", "wb") as code:
                         code.write(responsepdf.content)
                         
-# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
 # caffeinate_process = subprocess.Popen(['caffeinate', '-u'])
 
 type = str(input('''爬取规范类型：
@@ -317,5 +317,5 @@ elif type == 'tiaoyue' or type == 'shuangbian' or type == 'duobian':
         treaty(type, i + 1)
     print('任务完成，感谢使用')
 
-# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
 # caffeinate_process.terminate()  
