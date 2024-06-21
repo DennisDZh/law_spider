@@ -271,14 +271,19 @@ if type == 'flfg' or type == 'xzfg' or type == 'sfjs' or type == 'dfxfg':
         error = range(e1 - 1, e2)
     l0 = send_msg(1, type)
     total_num = int(l0['result']['totalSizes'])
-    if error:
-        if e2 < total_num:
-            total_num = (e2 - e1) * 10 + 10
-    print(f"截至{t}，共检索到{dic[type]}{total_num}条。")
-    print('检索中，请稍后……')
-    if not error:
-        with open(f'{path3}/{t}-最新规范.txt', 'a+', encoding='utf-8') as fa:
+    if not last:
+        with open(f'{path3}/{t}-最新规范.txt', 'w+', encoding='utf-8') as fa:
             print(f'截至{t}，{dic[type]}共{total_num}条，共{total_num // 10 if total_num % 10 == 0 else total_num // 10 + 1}页。',file=fa)
+    if error:
+        if e2*10 < total_num:
+            total = (e2 - e1) * 10 + 10
+        else:
+            error = range(e1 - 1, total_num // 10 if total_num % 10 == 0 else total_num // 10 + 1)
+            total = total_num - e1 * 10 + 10
+        print(f"截至{t}，共检索到{dic[type]}{total_num}条，正在检索{(e1 - 1) * 10 + 1}-{e2 * 10 if e2 * 10 < total_num else total_num}条……")
+    else:
+        total = total_num
+        print(f"截至{t}，共检索到{dic[type]}{total_num}条，正在检索1-{total}条……")
     n = total_num // 1000 if total_num % 1000 == 0 else total_num // 1000 + 1
     for i in range(n):
         n1 = (i + 1) * 1000 if (i + 1) * 1000 < total_num else total_num
