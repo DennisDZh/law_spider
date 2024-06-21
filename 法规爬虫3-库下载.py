@@ -112,6 +112,10 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
                     os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.docm')
                 elif url_name[-1] == 'X':  # 个别文件以DOCX格式存储
                     os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.DOCX')
+                elif url_name[-1] == 'F':  # 个别文件以PDF格式存储
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.PDF')
+                elif url_name[-1] == 'f':  # 个别文件以pdf格式存储
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.pdf')
                 print(f'{i + 1}.{title}  已下载！')
                 break
 
@@ -135,6 +139,13 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
                 elif url[-1] == 'm':  # 个别文件以DOCX格式存储
                     new_url = url[:-4] + 'DOCX'
                     selenium_downloader(new_url)
+                elif url[-1] == 'X':  # 个别文件以PDF格式存储
+                    url = re.sub('/WORD/','/PDF/',url)
+                    new_url = url[:-4] + 'PDF'
+                    selenium_downloader(new_url)
+                elif url[-1] == 'F':  # 个别文件以pdf格式存储
+                    new_url = url[:-3] + 'pdf'
+                    selenium_downloader(new_url)
                 else:
                     print(f'{i + 1}.{title}  下载失败')
                     print('数据源格式未支持，请自行下载该条文；或者当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试；或者网络不稳定，可再次尝试')
@@ -153,7 +164,7 @@ for i in range(begin_num, int(len(law_list) / 2)):  # begin_num实现断点续�
         elif f'https://wb.flk.npc.gov.cn/{type}/WORD' in url:  # 下载提供了下载源的文件
             selenium_downloader(url)
 
-    except selenium.common.exceptions.TimeoutException:
+    except selenium.common.exceptions.TimeoutException or TimeoutError:
         print(f'{law_list[2 * i]}下载失败')
         print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
         caffeinate_process.terminate()  # 防止程序运行时，mac熄屏或者进入屏保；如果您的电脑并非mac，请删除本行代码避免报错。
@@ -197,13 +208,13 @@ for i in range(int(len(law_list) / 2)):
             elif f'https://wb.flk.npc.gov.cn/{type}/WORD' in url:  # 下载提供了下载源的文件
                 selenium_downloader(url)
 
-        except selenium.common.exceptions.TimeoutException:
+        except selenium.common.exceptions.TimeoutException or TimeoutError:
             print(f'{law_list[2 * i]}下载失败')
             print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
             caffeinate_process.terminate()  # 防止程序运行时，mac熄屏或者进入屏保；如果您的电脑并非mac，请删除本行代码避免报错。
             sys.exit()
 
-print('校正完毕，感谢使用')
+print('校正完毕，感谢使用；如仍有下载错误，可能是下载索引出错，请先运行法规爬虫2-校验错误.py，确保下载索引无误后再运行本脚本。')
 
 # 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
 # caffeinate_process.terminate()
