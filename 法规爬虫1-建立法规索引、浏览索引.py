@@ -284,16 +284,16 @@ if type == 'flfg' or type == 'xzfg' or type == 'sfjs' or type == 'dfxfg':
     else:
         total = total_num
         print(f"截至{t}，共检索到{dic[type]}{total_num}条，正在检索1-{total}条……")
-    n = total_num // 1000 if total_num % 1000 == 0 else total_num // 1000 + 1
+    n = total // 1000 if total % 1000 == 0 else total // 1000 + 1
     for i in range(n):
-        n1 = (i + 1) * 1000 if (i + 1) * 1000 < total_num else total_num
+        n1 = (i + 1) * 1000 if (i + 1) * 1000 < total else total
         if not error:
             p = 1 + i * 100
             for j in range(i * 100, n1 // 10 if n1 % 10 == 0 else n1 // 10 + 1):
                 l.append(send_msg(j + 1, type))
             for law in l:
                 law_index(law, t, p, path3, path4)
-                print(f'已检索{p * 10 if p * 10 < total_num else total_num}条。')
+                print(f'已检索{p * 10 if p * 10 < total else total}条。')
                 p += 1
         else:
             p = e1
