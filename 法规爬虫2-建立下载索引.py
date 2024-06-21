@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import subprocess
 
-# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
 # caffeinate_process = subprocess.Popen(['caffeinate', '-u'])
 
 # 规范类型与此前建立法规索引、浏览索引的法规一致。
@@ -256,5 +256,5 @@ with open(f'{path4}/{t}-下载索引.txt', 'w') as f4:
     f4.write(f3)
 print(f'本次下载索引建立完毕，感谢使用；如果未建立全部下载索引，可再次运行本程序；如果尚有错误未校正，建议您先运行法规爬虫2-校验错误，校正错误后，再重新运行本脚本。')
 
-# 为防止程序运行时，mac熄屏或者进入屏保，建议mac电脑取消下行代码的注释；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
+# 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
 # caffeinate_process.terminate()
