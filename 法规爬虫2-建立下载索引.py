@@ -102,7 +102,7 @@ except IndexError:
     print(f'{dic[type]}已建立下载索引！')
 
 except selenium.common.exceptions.TimeoutException:
-    print('链接超时，当前ip可能被限制，请更换IP或者稍等一段时间后再次尝试。')
+    print('链接超时，当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
     sys.exit()
 # 以下为检验错误代码
 print('正在校验错误，请稍后……')
@@ -148,7 +148,7 @@ for i in range(len(l_list)):
             else:
                 f3 = f3 + '链接：' + doc + '\n' + '\n'
         except selenium.common.exceptions.TimeoutException:
-            print('链接超时，当前ip可能被限制，请更换IP或者稍等一段时间后再次尝试。')
+            print('链接超时，当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
             sys.exit()
 
     elif type == 'flfg' and (
