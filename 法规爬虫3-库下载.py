@@ -18,8 +18,6 @@ type = str(input('''爬取规范类型：
 2.xzfg（行政法规）；
 3.sfjs（司法解释）；
 4.dfxfg（地方性法规）；
-5.shuangbian（双边条约）；
-6.duobian（多边条约）
 输入拼音：（如flfg）'''))
 
 dic = {'flfg': '法律法规', 'xzfg': '行政法规', 'sfjs': '司法解释', 'dfxfg': '地方性法规'}
@@ -99,17 +97,21 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
     browser.refresh()  # 可酌情删除提高下载速度
     time.sleep(1)  # 可酌情删除提高下载速度
     url_name = os.path.basename(url)
-    chance = 4  # 可酌情减少循环次数提高下载速度
+    chance = 4  # 可酌情减少循环次数提高下载速度，但稳定性会下降，可能受网络波动影响导致下载失败
     while True:
         database = os.listdir(path2)
         for j in database:
             if url_name in j:
-                if url_name[-1] == 'x':  # 绝大多数文件以docx格式存储
+                if url_name[-1] == 'x':  # 多数文件以docx格式存储
                     os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.docx')
-                elif url_name[-1] == 'c':  # 个别文件以doc格式存储
+                elif url_name[-1] == 'c':  # 少数文件以doc格式存储
                     os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.doc')
                 elif url_name[-1] == 'C':  # 个别文件以DOC格式存储
                     os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.DOC')
+                elif url_name[-1] == 'm':  # 个别文件以docm格式存储
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.docm')
+                elif url_name[-1] == 'X':  # 个别文件以DOCX格式存储
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.DOCX')
                 print(f'{i + 1}.{title}  已下载！')
                 break
 
@@ -119,7 +121,7 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
                 chance = chance - 1
                 continue
             else:
-                if url[-1] == 'x':  # 个别文件以doc格式存储
+                if url[-1] == 'x':  # 少数文件以doc格式存储
                     new_url = url[:-1]
                     selenium_downloader(new_url)
                     break
@@ -127,9 +129,16 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
                     new_url = url[:-3] + 'DOC'
                     selenium_downloader(new_url)
                     break
+                elif url[-1] == 'C':  # 个别文件以docm格式存储
+                    new_url = url[:-3] + 'docm'
+                    selenium_downloader(new_url)
+                elif url[-1] == 'm':  # 个别文件以DOCX格式存储
+                    new_url = url[:-4] + 'DOCX'
+                    selenium_downloader(new_url)
                 else:
                     print(f'{i + 1}.{title}  下载失败')
-                    print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
+                    print('数据源格式未支持，请自行下载该条文；或者当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试；或者网络不稳定，可再次尝试')
+                    caffeinate_process.terminate()  # 防止程序运行时，mac熄屏或者进入屏保；如果您的电脑并非mac，请删除本行代码避免报错。
                     sys.exit()
         break
 
@@ -147,6 +156,7 @@ for i in range(begin_num, int(len(law_list) / 2)):  # begin_num实现断点续�
     except selenium.common.exceptions.TimeoutException:
         print(f'{law_list[2 * i]}下载失败')
         print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
+        caffeinate_process.terminate()  # 防止程序运行时，mac熄屏或者进入屏保；如果您的电脑并非mac，请删除本行代码避免报错。
         sys.exit()
 else:
     print(f'{dic[type]}库下载完毕')
@@ -190,6 +200,7 @@ for i in range(int(len(law_list) / 2)):
         except selenium.common.exceptions.TimeoutException:
             print(f'{law_list[2 * i]}下载失败')
             print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
+            caffeinate_process.terminate()  # 防止程序运行时，mac熄屏或者进入屏保；如果您的电脑并非mac，请删除本行代码避免报错。
             sys.exit()
 
 print('校正完毕，感谢使用')
