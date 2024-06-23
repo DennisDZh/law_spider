@@ -8,10 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 import pypandoc
-import subprocess
 
-# 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
-# caffeinate_process = subprocess.Popen(['caffeinate', '-u'])
 
 type = str(input('''爬取规范类型：
 1.flfg（法律法规）；
@@ -38,7 +35,6 @@ prefs = {
     'safebrowsing.enabled': True
 }
 chrome_options.add_experimental_option('prefs', prefs)
-
 t = time.strftime('%Y-%m-%d')
 with open(f'{path4}/{t}-下载索引.txt') as f0:
     ff = f0.read()
@@ -46,7 +42,7 @@ regex = re.compile(r"\d+：.+|"
                    r'链接.+')
 law_list = regex.findall(ff)
 
-browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options)
+browser = webdriver.Chrome(options=chrome_options)
 begin = os.listdir(path2)  # 实现断点续传功能
 begin_ = []
 for w in begin:
@@ -149,8 +145,6 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
                 else:
                     print(f'{i + 1}.{title}  下载失败')
                     print('数据源格式未支持，请自行下载该条文；或者当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试；或者网络不稳定，可再次尝试')
-                    # 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
-                    # caffeinate_process.terminate()
                     sys.exit()
         break
 
@@ -168,8 +162,6 @@ for i in range(begin_num, int(len(law_list) / 2)):  # begin_num实现断点续�
     except selenium.common.exceptions.TimeoutException or TimeoutError:
         print(f'{law_list[2 * i]}下载失败')
         print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
-        # 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
-        # caffeinate_process.terminate()
         sys.exit()
 else:
     print(f'{dic[type]}库下载完毕')
@@ -213,11 +205,7 @@ for i in range(int(len(law_list) / 2)):
         except selenium.common.exceptions.TimeoutException or TimeoutError:
             print(f'{law_list[2 * i]}下载失败')
             print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
-            # 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
-            # caffeinate_process.terminate()
             sys.exit()
 
-print('校正完毕，感谢使用；如仍有下载错误，可能是下载索引出错，请先运行法规爬虫2-校验错误.py，确保下载索引无误后再运行本脚本。')
 
-# 为防止程序运行时，mac熄屏或者进入屏保，mac电脑可选择取消下行代码的注释（但似乎可能产生bug）；如果您的电脑并非mac，请使用其他避免休眠代码，无须取消下行代码注释。
-# caffeinate_process.terminate()
+print('校正完毕，感谢使用；如仍有下载错误，可能是下载索引出错，请先运行法规爬虫2-校验错误.py，确保下载索引无误后再运行本脚本。')
