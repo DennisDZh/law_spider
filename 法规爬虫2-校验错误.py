@@ -33,8 +33,9 @@ law_list = regex.findall(ff)
 chrome_options = Options()
 chrome_options.add_argument('--headless')
 chrome_options.add_argument('--disable-gpu')
-
-browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options)
+# executable_path='/usr/local/bin/chromedriver'
+# service = Service(executable_path)
+browser = webdriver.Chrome(options=chrome_options)
 print('正在校验错误，请稍后……')
 f3 = ''
 with open(f'{path4}/{t}-下载索引.txt', 'r') as f1:
@@ -56,7 +57,7 @@ if not re.match(r'链接.+', l_list[-1]):  # 有时由于网络波动，下载�
         png = re.sub(rf'//{type}', f'/{type}', png)
     doc = re.sub(r'\.png', '.docx', png)
     if 'images/qr' in doc:  # 有的文件未提供下载源
-        file = browser.find_element_by_id("viewDoc")
+        file = browser.find_element(By.ID,"viewDoc")
         doc = file.get_attribute("src")
     with open(f'{path4}/{t}-下载索引.txt', 'a+', encoding='utf-8') as f1:
         print(f'链接：{doc}\n', file=f1)
@@ -78,7 +79,7 @@ for i in range(len(l_list)):
                     png = re.sub(rf'//{type}', f'/{type}', png)
                 doc = re.sub(r'\.png', '.docx', png)
                 if 'images/qr' in doc:  # 有的文件未提供下载源
-                    file = browser.find_element_by_id("viewDoc")
+                    file = browser.find_element(By.ID,"viewDoc")
                     doc = file.get_attribute("src")
                 f3 = f3 + l_list[i] + law_list[i][3:] + '\n'
                 f3 = f3 + '链接：' + doc + '\n' + '\n'
@@ -161,4 +162,3 @@ print('正在纠正错误中，请稍后……')
 with open(f'{path4}/{t}-下载索引.txt', 'w') as f4:
     f4.write(f3)
 print('本次校正完毕，感谢使用；如果因反爬虫机制尚有错误未校正，建议您更换ip地址或者等待一段时间后再重新运行本脚本；请确保已建立的下载索引无错误后再继续运行法规爬虫2-建立下载索引')
-
