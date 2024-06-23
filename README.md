@@ -42,15 +42,15 @@
 
 三、注意事项：
 
-请自行安装脚本依赖库：requests，BeautifulSoup，selenium，pypandoc，subprocess。
+请自行安装脚本依赖库：requests，BeautifulSoup，selenium（请使用最新的4.22版本），pypandoc，subprocess。
 
-    “法规爬虫1-建立法规索引、浏览索引.py”除基本的os，re，json，time外，需要requests，BeautifulSoup，subprocess；
+    “法规爬虫1-建立法规索引、浏览索引.py”除基本的os，re，json，time外，需要requests，BeautifulSoup；
 
-    “法规爬虫2-建立下载索引.py”除基本的os，re，sys，time外，需要selenium，subprocess；
+    “法规爬虫2-建立下载索引.py”除基本的os，re，sys，time外，需要selenium；
 
-    “法规爬虫3-库下载.py”除基本的os，re，sys，time外，需要requests，selenium，pypandoc，subprocess。
+    “法规爬虫3-库下载.py”除基本的os，re，sys，time外，需要requests，selenium，pypandoc。
 
-本脚本selenium使用chrome浏览器，请自行下载与您的chrome浏览器兼容的chromedriver，并确保其路径配置正确。即确保“法规爬虫2-建立下载索引.py”第58行、“法规爬虫2-校验错误.py”第37行、“法规爬虫3-库下载.py”第49行处的“executable_path”正确指向您的chromedriver。
+本脚本selenium（v4.22）使用chrome浏览器，请自行下载与您的chrome浏览器兼容的chromedriver，并确保其路径配置正确。
 
 
 四、示例：
