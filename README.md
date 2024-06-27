@@ -42,7 +42,7 @@
 
 三、注意事项：
 
-请自行安装脚本依赖库：requests，BeautifulSoup，selenium（请使用最新的4.22版本），pypandoc，subprocess。
+请自行安装脚本依赖库：requests，BeautifulSoup，selenium（请使用最新的4.22版本），pypandoc。
 
     “法规爬虫1-建立法规索引、浏览索引.py”除基本的os，re，json，time外，需要requests，BeautifulSoup；
 
