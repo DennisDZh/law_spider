@@ -126,6 +126,9 @@
     链接：https://wb.flk.npc.gov.cn/flfg/WORD/a41c27c366f7428f9256dbbebf06a431.docx
 
 
+在Releases中提供了国家法律法规数据库的爬取结果（两个exemple.zip文件），可自行下载。
+
+
 五、后续计划：
 
 计划推出gui，并加入检索、下载单条法规等功能。
