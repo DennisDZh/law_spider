@@ -9,7 +9,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 import pypandoc
 
-
 type = str(input('''爬取规范类型：
 1.flfg（法律法规）；
 2.xzfg（行政法规）；
@@ -35,6 +34,8 @@ prefs = {
     'safebrowsing.enabled': True
 }
 chrome_options.add_experimental_option('prefs', prefs)
+# executable_path='/usr/local/bin/chromedriver'
+# service = Service(executable_path)
 t = time.strftime('%Y-%m-%d')
 with open(f'{path4}/{t}-下载索引.txt') as f0:
     ff = f0.read()
@@ -63,14 +64,44 @@ for k in begin_:
         print(f'发现错误  {k}，正在校正……')
         os.remove(path2 + '/' + k)
 begin_num = max(begin_list)
+former_num = 0  # 更新数据库--旧数据库法规数量
 
 if begin_num > 0:
-    begin_test = input(
-        f'检测到已下载文件，是否从该文件处继续下载？\n从最大编号处（{begin_num}）继续下载则输入y\n从自选编号处继续下载则输入编号（举例来说，如果要下载201,202...则输入200）\n从头开始下载则直接按回车。')
+    begin_test = input(f'''检测到已下载文件，是否从该文件处继续下载？
+-如果您是首次建立库/当日建立库：
+--从最大编号处（{begin_num}）继续下载则输入y；
+--从自选编号处继续下载则输入编号（举例来说，如果要下载201,202...则输入200）；
+--从头开始下载则直接按回车；
+
+-如果您欲更新过去日期建立的库：
+--从最大编号处（{begin_num}）继续更新则输入x；
+--从自选编号处继续更新则输入x-编号（举例来说，如果要下载201,202...则输入x-200）''')
     if not begin_test:
         begin_num = 0
     elif begin_test == 'y':
         pass
+    elif begin_test.startswith('x'):  # 更新数据库，断点续传
+        formerlaw = os.listdir(f'{path4}')  # 把旧数据导入进来，形成列表，新数据与旧数据比对
+        formerlaw_ = []
+        for i in formerlaw:
+            if '.DS_Store' in i:
+                pass
+            elif f'{t}-下载索引.txt' in i:
+                pass
+            elif '浏览索引' in i:
+                pass
+            else:
+                formerlaw_.append(i)
+        if formerlaw_:
+            former_law = max(formerlaw_)
+            with open(path4 + '/' + former_law) as former:
+                former_law_ = former.read()
+            former_regex = re.compile(r"\d+：")
+            former_law_list = former_regex.findall(former_law_)
+            former_num = int(former_law_list[-1][:-1])  # 旧数据--下载的规范数
+            if '-' in begin_test:
+                begin_num = int(begin_test[2:])
+            begin_num = begin_num - former_num
     else:
         begin_num = int(begin_test)
 print('如果长时间无输出，当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
@@ -82,9 +113,9 @@ def request_downloader(url):  # 下载未提供下载源的文件
     if r.status_code == 200:
         with open(f"{path2}/{title}.html", "wb") as code:
             code.write(r.content)
-    pypandoc.convert_file(f"{path2}/{title}.html", 'docx', outputfile=f"{path2}/{i + 1}.{title}.docx")
+    pypandoc.convert_file(f"{path2}/{title}.html", 'docx', outputfile=f"{path2}/{i + 1 + former_num}.{title}.docx")
     os.remove(f"{path2}/{title}.html")
-    print(f'{i + 1}.{title}  已下载！')
+    print(f'{i + 1 + former_num}.{title}  已下载！')
 
 
 def selenium_downloader(url):  # 下载提供了下载源的文件
@@ -93,26 +124,26 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
     browser.refresh()  # 可酌情删除提高下载速度
     time.sleep(1)  # 可酌情删除提高下载速度
     url_name = os.path.basename(url)
-    chance = 4  # 可酌情减少循环次数提高下载速度，但稳定性会下降，可能受网络波动影响导致下载失败
+    chance = 6  # 可酌情减少循环次数提高下载速度，但稳定性会下降，可能受网络波动影响导致下载失败
     while True:
         database = os.listdir(path2)
         for j in database:
             if url_name in j:
                 if url_name[-1] == 'x':  # 多数文件以docx格式存储
-                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.docx')
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1 + former_num}.{title}.docx')
                 elif url_name[-1] == 'c':  # 少数文件以doc格式存储
-                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.doc')
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1 + former_num}.{title}.doc')
                 elif url_name[-1] == 'C':  # 个别文件以DOC格式存储
-                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.DOC')
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1 + former_num}.{title}.DOC')
                 elif url_name[-1] == 'm':  # 个别文件以docm格式存储
-                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.docm')
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1 + former_num}.{title}.docm')
                 elif url_name[-1] == 'X':  # 个别文件以DOCX格式存储
-                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.DOCX')
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1 + former_num}.{title}.DOCX')
                 elif url_name[-1] == 'F':  # 个别文件以PDF格式存储
-                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.PDF')
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1 + former_num}.{title}.PDF')
                 elif url_name[-1] == 'f':  # 个别文件以pdf格式存储
-                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1}.{title}.pdf')
-                print(f'{i + 1}.{title}  已下载！')
+                    os.rename(f'{path2}/{j}', f'{path2}/{i + 1 + former_num}.{title}.pdf')
+                print(f'{i + 1 + former_num}.{title}  已下载！')
                 break
 
         else:
@@ -143,7 +174,7 @@ def selenium_downloader(url):  # 下载提供了下载源的文件
                     new_url = url[:-3] + 'pdf'
                     selenium_downloader(new_url)
                 else:
-                    print(f'{i + 1}.{title}  下载失败')
+                    print(f'{i + 1 + former_num}.{title}  下载失败')
                     print('数据源格式未支持，请自行下载该条文；或者当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试；或者网络不稳定，可再次尝试')
                     sys.exit()
         break
@@ -181,12 +212,13 @@ for h in outcome:
 
 for i in range(int(len(law_list) / 2)):
     no = regex__.findall(law_list[2 * i])[0][:-1]
+    no = int(no) + former_num
     for h in outcome:
         if h == '.DS_Store' or h.startswith('._'):
             pass
         elif regex_.match(h):
             no_ = regex_.match(h).group()
-            if no_[:-1] == no:
+            if no_[:-1] == str(no):
                 break
         else:
             print(f'发现错误  {h}，正在校正……')
@@ -206,6 +238,5 @@ for i in range(int(len(law_list) / 2)):
             print(f'{law_list[2 * i]}下载失败')
             print('当前ip可能被限制，请更换ip或者稍等一段时间后再次尝试。')
             sys.exit()
-
 
 print('校正完毕，感谢使用；如仍有下载错误，可能是下载索引出错，请先运行法规爬虫2-校验错误.py，确保下载索引无误后再运行本脚本。')
